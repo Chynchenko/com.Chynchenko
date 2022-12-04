@@ -2,23 +2,20 @@ package com.Chynchenko.model;
 
 import java.util.Random;
 import java.util.UUID;
+import lombok.Getter;
+import lombok.Setter;
 
-public class Car {
+@Setter
+@Getter
+    public abstract class Car implements CountRestore {
     public static Colors Colors;
     private String manufacturer;
     private Engine engine;
     private Colors color;
+    private Types type;
     private int count;
     private int price;
     public String id;
-
-    public String getId() {
-        return null;
-    }
-    public String setId(String id) {
-        this.id = id;
-        return id;
-    }
 
     public enum Colors
     {
@@ -27,13 +24,21 @@ public class Car {
         BLUE,
         WHITE,
         YELLOW,
-        GREEN
+        GREEN;
     }
+
+    public enum Types
+    {
+        CAR,
+        TRUCK
+    }
+
     Random random = new Random();
+
     public Car() {
     }
 
-    public Car(String manufacturer, Engine engine, Colors color, int power, String type, int id) {
+    public Car(String manufacturer, Engine engine, Colors color) {
         this.manufacturer = manufacturer;
         this.engine = engine;
         this.color = color;
@@ -71,6 +76,13 @@ public class Car {
     }
     public void setPrice(int price) {
         this.price = price;
+    }
+    public String getId() {
+        return null;
+    }
+    public String setId(String id) {
+        this.id = id;
+        return id;
     }
 }
 

@@ -14,8 +14,14 @@ public class CarService {
 
     private final Random random = new Random();
 
+    private String[] manufacturers = {"BMW", "Mercedes", "Audi", "Opel", "VW"};
+    private String[] typesOfEngines = {"Diesel", "Benzine", "Electric"};
+
     public CarService() {
         this.carArrayRepository = carArrayRepository;
+    }
+
+    public CarService(CarArrayRepository repository) {
     }
 
     public int create(final RandomGenerator randomGenerator) {
@@ -36,23 +42,41 @@ public class CarService {
         carArrayRepository.insert(index, car);
     }
 
-    public Car create() {
-        final Car car = new Car();
-        car.setManufacturer(createString());
-        car.setEngine(new Engine(random.nextInt(0, 1000), createString()));
-        car.setColor(getRandomColor());
-        car.setPrice(random.nextInt(0, 10000));
-        car.setCount(1);
-        carArrayRepository.save(car);
-        return car;
-    }
-
     private Car.Colors getRandomColor() {
         final Car.Colors[] values = Car.Colors.values();
         final int randomIndex = random.nextInt(values.length);
         return values[randomIndex];
     }
 
+    public Car create() {
+        String manufacturer = manufacturers[random.nextInt(manufacturers.length)];
+        Engine engine = new Engine(typesOfEngines[random.nextInt(typesOfEngines.length)]);
+        Car car = new Car(manufacturer, engine, getRandomColor()) {
+            @Override
+            public int restoreCount() {
+                return 0;
+            }
+        };
+        carArrayRepository.save(car);
+        return car;
+    }
+
+    public int createCars() {
+        int count = RandomGenerator.generate();
+        for (int i = 0; i < count; i++) {
+            String manufacturer = RandomGenerator.generateRandomManufacture();
+            Engine engine = new Engine(RandomGenerator.generateRandomTypeOfEngine());
+            Car car = new Car(manufacturer, engine, getRandomColor()) {
+                @Override
+                public int restoreCount() {
+                    return 0;
+                }
+            };
+            System.out.println("It's " + (i + 1) + " car: " + car);
+        }
+        int number = count == 0 ? -1 : count;
+        return number;
+    }
 
     private String createString() {
         StringBuilder sb = new StringBuilder();
@@ -132,6 +156,5 @@ public class CarService {
         do {
             randomColor = getRandomColor();
         } while (randomColor == color);
-        carArrayRepository.updateColor(car.getId(), randomColor);
     }
 }
