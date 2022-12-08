@@ -1,9 +1,14 @@
 
 import com.Chynchenko.model.Car;
+import com.Chynchenko.model.PassengerCar;
+import com.Chynchenko.model.Truck;
 import com.Chynchenko.service.CarService;
 import com.Chynchenko.service.CarArrayRepository;
 
 public class Main {
+    private static Car PassengerCar;
+    private static Car Truck;
+
     public static void main(String[] args) {
         CarService carService = new CarService(new CarArrayRepository());
 
@@ -14,6 +19,10 @@ public class Main {
         for (Car car : carService.getAll()) {
             car.restoreCount();
         }
+
+        boolean result = carService.carEquals(PassengerCar, Truck);
+        System.out.println(result);
+
         carService.printAll();
     }
 

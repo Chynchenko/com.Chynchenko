@@ -9,8 +9,8 @@ import lombok.Setter;
 public class Truck extends Car {
     private int loadCapacity;
 
-    public Truck(String manufacturer, Engine engine, Colors color,int loadCapacity){
-        super(manufacturer, engine,color);
+    public Truck(String manufacturer, Engine engine, Colors color, Types type, int loadCapacity){
+        super(manufacturer, engine,color, type);
         this.loadCapacity = loadCapacity;
     }
 

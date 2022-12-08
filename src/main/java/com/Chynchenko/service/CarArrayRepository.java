@@ -1,13 +1,14 @@
 package com.Chynchenko.service;
 
 import com.Chynchenko.model.Car;
+import com.Chynchenko.service.CarArrayRepository;
 
 import java.util.Objects;
 
 public class CarArrayRepository {
     private static Car[] cars = new Car[10];
     private String id;
-    private Colors color;
+    private Car.Colors color;
 
     public void save( Car car) {
         final int index = putCar(car);
@@ -62,7 +63,7 @@ public class CarArrayRepository {
         }
 
     }
-    public void updateColor(final String id, final Colors color) {
+    public void updateColor(final String id, Car.Colors color) {
         this.id = id;
         this.color = color;
         final Car car = getById(id);

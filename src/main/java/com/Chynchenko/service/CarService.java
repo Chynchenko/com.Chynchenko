@@ -2,9 +2,11 @@ package com.Chynchenko.service;
 
 import com.Chynchenko.model.Car;
 import com.Chynchenko.model.Engine;
+import com.Chynchenko.model.PassengerCar;
+import com.Chynchenko.model.Truck;
 import com.Chynchenko.util.RandomGenerator;
 
-
+import java.util.Objects;
 import java.util.Random;
 
 public class CarService {
@@ -37,21 +39,27 @@ public class CarService {
         return count;
     }
 
-    public void insert(int index, final Car car) {
-
-        carArrayRepository.insert(index, car);
+    public Car createCar(Car.Types type) {
+        if (type.equals(Car.Types.CAR)) {
+            createPassengerCar();
+            return createPassengerCar();
+        } else if (type.equals(Car.Types.TRUCK)) {
+            createTruck();
+            return createTruck();
+        }
+        return null;
     }
 
-    private Car.Colors getRandomColor() {
-        final Car.Colors[] values = Car.Colors.values();
-        final int randomIndex = random.nextInt(values.length);
-        return values[randomIndex];
+    public void create(int count) {
+        for (int i = 0; i < count; i++) {
+            carArrayRepository.save(createCar(getRandomType()));
+        }
     }
 
     public Car create() {
         String manufacturer = manufacturers[random.nextInt(manufacturers.length)];
         Engine engine = new Engine(typesOfEngines[random.nextInt(typesOfEngines.length)]);
-        Car car = new Car(manufacturer, engine, getRandomColor()) {
+        Car car = new Car(manufacturer, engine, getRandomColor(), getRandomType()) {
             @Override
             public int restoreCount() {
                 return 0;
@@ -66,7 +74,7 @@ public class CarService {
         for (int i = 0; i < count; i++) {
             String manufacturer = RandomGenerator.generateRandomManufacture();
             Engine engine = new Engine(RandomGenerator.generateRandomTypeOfEngine());
-            Car car = new Car(manufacturer, engine, getRandomColor()) {
+            Car car = new Car(manufacturer, engine, getRandomColor(), getRandomType()) {
                 @Override
                 public int restoreCount() {
                     return 0;
@@ -78,7 +86,44 @@ public class CarService {
         return number;
     }
 
-    private String createString() {
+    public Car createPassengerCar() {
+        Car passengerCar = new PassengerCar();
+        carArrayRepository.save(passengerCar);
+        return passengerCar;
+    }
+
+    public Car createTruck() {
+        Car truck = new Truck();
+        carArrayRepository.save(truck);
+        return truck;
+    }
+
+    public boolean carEquals(Car firstCar, Car secondCar) {
+        if (firstCar.getType().equals(secondCar.getType()) && firstCar.hashCode() == secondCar.hashCode()) {
+            return firstCar.equals(secondCar);
+        } else {
+            return false;
+        }
+    }
+
+    public void insert(int index, final Car car) {
+
+        carArrayRepository.insert(index, car);
+    }
+
+    private Car.Colors getRandomColor() {
+        final Car.Colors[] values = Car.Colors.values();
+        final int randomIndex = random.nextInt(values.length);
+        return values[randomIndex];
+    }
+
+    private Car.Types getRandomType() {
+        final Car.Types[] values = Car.Types.values();
+        final int randomIndex = random.nextInt(values.length);
+        return values[randomIndex];
+    }
+
+    private String getRandomString() {
         StringBuilder sb = new StringBuilder();
         int stringLength = random.nextInt(1, 10);
         String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -99,7 +144,6 @@ public class CarService {
                 ", count: " + car.getCount() +
                 ", price: " + car.getPrice() +
                 ", id: " + car.getId() + "}");
-
     }
 
     public static void check(Car car) {
@@ -112,7 +156,6 @@ public class CarService {
         } else if (car.getCount() < 1) {
             System.out.println("AMOUNT IS LESS THAN 1");
         }
-
     }
 
     public void printAll() {
@@ -158,3 +201,7 @@ public class CarService {
         } while (randomColor == color);
     }
 }
+
+
+
+
