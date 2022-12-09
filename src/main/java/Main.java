@@ -12,13 +12,18 @@ public class Main {
     public static void main(String[] args) {
         CarService carService = new CarService(new CarArrayRepository());
 
-        carService.createPassengerCar();
-        carService.createTruck();
-        carService.printAll();
+        Car count = carService.create();
+        System.out.println(count);
 
+        System.out.println();
         for (Car car : carService.getAll()) {
             car.restoreCount();
         }
+
+        carService.printManufacturerAndCount(null);
+        carService.printColor(null);
+        carService.printEngineInfo(null);
+        carService.printInfo(null);
 
         boolean result = carService.carEquals(PassengerCar, Truck);
         System.out.println(result);
@@ -61,9 +66,5 @@ public class Main {
         carService.printAll();
 
         */
-
-
-
-
 
     }

@@ -97,7 +97,7 @@ import lombok.Setter;
     public void setPrice(int price) {
         this.price = price;
     }
-    public String getId() {
+    public Car getId() {
         return null;
     }
     public String setId(String id) {
