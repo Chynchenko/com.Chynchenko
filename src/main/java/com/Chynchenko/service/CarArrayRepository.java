@@ -6,6 +6,8 @@ import java.util.Objects;
 
 public class CarArrayRepository {
     private static Car[] cars = new Car[10];
+    private String id;
+    private Colors color;
 
     public void save( Car car) {
         final int index = putCar(car);
@@ -60,7 +62,9 @@ public class CarArrayRepository {
         }
 
     }
-    public void updateColor(final String id, final Car.Colors color) {
+    public void updateColor(final String id, final Colors color) {
+        this.id = id;
+        this.color = color;
         final Car car = getById(id);
         if (car != null) {
             car.setColor(Car.Colors);
@@ -95,6 +99,5 @@ public class CarArrayRepository {
         System.arraycopy(cars, 0, newCars, 0, cars.length);
         cars = newCars;
     }
-
 }
 

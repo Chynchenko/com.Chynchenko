@@ -1,10 +1,17 @@
 package com.Chynchenko.model;
-
+import lombok.Getter;
+import lombok.Setter;
 import java.util.Random;
 
+@Setter
+@Getter
 public class Engine {
     private int power;
     private EngineTypes type;
+
+    public Engine(String generateRandomTypeOfEngine) {
+    }
+
     public enum EngineTypes {
         GAS,
         DIESEL,
@@ -13,9 +20,9 @@ public class Engine {
 
     Random random = new Random();
 
-    public Engine(int i, String string) {
-        power = random.nextInt(1000);
-        type = getRandomType();
+    public Engine(int power, EngineTypes type) {
+        this.power = random.nextInt(1000);
+        this.type = getRandomType();
     }
 
     private EngineTypes getRandomType() {

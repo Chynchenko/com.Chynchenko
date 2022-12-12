@@ -1,11 +1,23 @@
 
 import com.Chynchenko.model.Car;
 import com.Chynchenko.service.CarService;
+import com.Chynchenko.service.CarArrayRepository;
 
 public class Main {
     public static void main(String[] args) {
+        CarService carService = new CarService(new CarArrayRepository());
 
-        int i, y;
+        carService.createPassengerCar();
+        carService.createTruck();
+        carService.printAll();
+
+        for (Car car : carService.getAll()) {
+            car.restoreCount();
+        }
+        carService.printAll();
+    }
+
+       /* int i, y;
         for (i = 0, y = 5; i <= 10; i++, y += 2) {
             System.out.println("Step" + " " + i + "," + "meaning" + " " + y);
         }
@@ -39,9 +51,10 @@ public class Main {
         carService.create();
         carService.printAll();
 
+        */
+
 
 
 
 
     }
-}

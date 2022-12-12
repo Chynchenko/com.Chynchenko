@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.Chynchenko.model.Car;
 import com.Chynchenko.model.Engine;
 import com.Chynchenko.service.CarArrayRepository;
+import com.Chynchenko.service.CarService;
 import com.Chynchenko.util.RandomGenerator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -15,188 +16,148 @@ import org.mockito.Mockito;
 class CarServiceTest {
     private CarService target;
     private CarArrayRepository repository;
-    private RandomGenerator randomGenerator;
-    private Car car;
 
     @BeforeEach
     void setUp() {
         repository = Mockito.mock(CarArrayRepository.class);
-        randomGenerator = Mockito.mock(RandomGenerator.class);
-        target = new CarService();
-        car = new Car();
+        target = new CarService(repository);
     }
 
     @Test
-    void createWithRandomCount() {
-        Mockito.when(randomGenerator.generate()).thenReturn(3);
-        final int expected = 3;
-        final int actual = target.create(randomGenerator);
-        Assertions.assertEquals(expected, actual);
+    void create_Null() {
+        final Car car = target.create();
+        Assertions.assertNull(car);
     }
 
     @Test
-    void createWithRandomCountIncorrectNull() {
-        final int expected = -1;
-        final int actual = target.create(null);
-        Assertions.assertEquals(expected, actual);
-    }
-
-    @Test
-    void createWithRandomCountIncorrectZero() {
-        final int expected = -1;
-        Mockito.when(randomGenerator.generate()).thenReturn(0);
-        final int actual = target.create(randomGenerator);
-        Assertions.assertEquals(expected, actual);
-    }
-
-    @Test
-    void createWithRandomCountIncorrectOutOfTheBound() {
-        final int expected = -1;
-        Mockito.when(randomGenerator.generate()).thenReturn(-5);
-        final int actual = target.create(randomGenerator);
-        Assertions.assertEquals(expected, actual);
-    }
-
-    @Test
-    void create() {
+    void create_NotNull() {
         final Car car = target.create();
         Assertions.assertNotNull(car);
-        Mockito.verify(repository).save(car);
     }
 
     @Test
-    void insert() {
-        final int count = 7;
-        Assertions.assertDoesNotThrow(() -> target.insert(count, car));
-        Mockito.verify(repository).insert(count, car);
+    void createCars_one() {
+        final int actual = target.createCars();
+        Assertions.assertEquals(1, actual);
     }
 
     @Test
-    void insertIncorrectCount() {
-        final int count = -8;
-        Assertions.assertDoesNotThrow(() -> target.insert(count, car));
-        Mockito.verify(repository).insert(count, car);
+    void createCars_two() {
+        final int actual = target.createCars();
+        Assertions.assertEquals(2, actual);
     }
 
     @Test
-    void insertIncorrectCarNull() {
-        final int count = -8;
-        Assertions.assertDoesNotThrow(() -> target.insert(count, null));
-        Mockito.verify(repository).insert(count, null);
+    void createCars_three() {
+        final int actual = target.createCars();
+        Assertions.assertEquals(3, actual);
+    }
+
+    @Test
+    void createCars_four() {
+        final int actual = target.createCars();
+        Assertions.assertEquals(4, actual);
+    }
+
+    @Test
+    void createCars_five() {
+        final int actual = target.createCars();
+        Assertions.assertEquals(5, actual);
+    }
+
+    @Test
+    void createCars_six() {
+        final int actual = target.createCars();
+        Assertions.assertEquals(6, actual);
+    }
+
+    @Test
+    void createCars_seven() {
+        final int actual = target.createCars();
+        Assertions.assertEquals(7, actual);
+    }
+
+    @Test
+    void createCars_eight() {
+        final int actual = target.createCars();
+        Assertions.assertEquals(8, actual);
+    }
+
+    @Test
+    void createCars_nine() {
+        final int actual = target.createCars();
+        Assertions.assertEquals(9, actual);
+    }
+
+    @Test
+    void createCars_ten() {
+        final int actual = target.createCars();
+        Assertions.assertEquals(10, actual);
+    }
+
+    @Test
+    void createCars_minesOne() {
+        final int actual = target.createCars();
+        Assertions.assertEquals(-1, actual);
+    }
+
+    @Test
+    void createCars_emptyString() {
+        String expected = "";
+        final int actual = target.createCars();
+        Assertions.assertEquals(expected, actual);
     }
 
     @Test
     void printAll() {
         Assertions.assertDoesNotThrow(() -> target.printAll());
-        Mockito.verify(repository).getAll();
     }
 
     @Test
-    void getAll() {
-        Assertions.assertNull(target.getAll());
-        Mockito.verify(repository).getAll();
+    void getAll_Null() {
+        final Car[] car = target.getAll();
+        Assertions.assertNull(car);
     }
 
     @Test
-    void find() {
-        final Car expected = new Car();
-        String id = "1234567890";
-        Mockito.when(repository.getById(id)).thenReturn(expected);
+    void getAll_NotNull() {
+        final Car[] car = target.getAll();
+        Assertions.assertNotNull(car);
+    }
+
+    @Test
+    void find_IdIncorrectNullId() {
+        String id = null;
+        final Car car = target.find(id);
+        Assertions.assertNull(car);
+    }
+
+    @Test
+    void find_IdIncorrectEmptyId() {
+        String id = "";
+        final Car car = target.find(id);
+        Assertions.assertNull(car);
+    }
+
+    @Test
+    void find_NotFound() {
+        String id = "777";
+        Mockito.when(repository.getById("777")).thenReturn(null);
+        final Car car = target.find(id);
+        Assertions.assertNull(car);
+    }
+
+    @Test
+    void find_SpecialId() {
+        final Car expected = new Car() {
+            @Override
+            public int restoreCount() {
+                return 0;
+            }
+        };
+        String id = "147258369";
+        Mockito.when(repository.getById("147258369")).thenReturn(expected);
         final Car actual = target.find(id);
         Assertions.assertEquals(expected, actual);
-        Mockito.verify(repository).getById(id);
-    }
-
-    @Test
-    void findNotFound() {
-        String id = "1234567890";
-        Mockito.when(repository.getById(id)).thenReturn(null);
-        car = target.find(id);
-        Assertions.assertNull(car);
-        Mockito.verify(repository).getById(id);
-    }
-
-    @Test
-    void findIncorrectIdNull() {
-        String id = null;
-        car = target.find(id);
-        Assertions.assertNull(car);
-        Mockito.verify(repository, Mockito.never()).getById(null);
-    }
-
-    @Test
-    void findIncorrectIdEmpty() {
-        String id = "";
-        car = target.find(id);
-        Assertions.assertNull(car);
-        Mockito.verify(repository, Mockito.never()).getById("");
-    }
-
-    @Test
-    void delete() {
-        String id = "123456";
-        Assertions.assertDoesNotThrow(() -> target.delete(id));
-        Mockito.verify(repository).delete(id);
-    }
-
-    @Test
-    void deleteIncorrectIdNull() {
-        String id = null;
-        Assertions.assertDoesNotThrow(() -> target.delete(id));
-        Mockito.verify(repository, Mockito.never()).delete(Mockito.anyString());
-    }
-
-    @Test
-    void deleteIncorrectIdEmpty() {
-        String id = "";
-        Assertions.assertDoesNotThrow(() -> target.delete(id));
-        Mockito.verify(repository, Mockito.never()).delete(Mockito.anyString());
-    }
-
-    @Test
-    void changeRandomColor() {
-        String id = car.getId();
-        Assertions.assertDoesNotThrow(() -> target.changeRandomColor(id));
-    }
-
-    @Test
-    void changeRandomColorIncorrectIdNull() {
-        String id = null;
-        Assertions.assertDoesNotThrow(() -> target.changeRandomColor(id));
-        Mockito.verify(repository, Mockito.never()).updateColor(car.getId(), Car.Colors.BLACK);
-    }
-
-    @Test
-    void changeRandomColorIncorrectIdEmpty() {
-        String id = "";
-        Assertions.assertDoesNotThrow(() -> target.changeRandomColor(id));
-        Mockito.verify(repository, Mockito.never()).updateColor(car.getId(), Car.Colors.BLACK);
-    }
-
-    @Test
-    void createWithThreeIncorrectParametersNull() {
-        car = target.create();
-        Assertions.assertNull(car);
-        Mockito.verify(repository, Mockito.never()).save(null);
-    }
-
-    @Test
-    void print() {
-        Assertions.assertDoesNotThrow(() -> target.print(car));
-    }
-
-    @Test
-    void printIncorrectCarNull() {
-        Assertions.assertDoesNotThrow(() -> target.print(null));
-    }
-
-    @Test
-    void check() {
-        Assertions.assertDoesNotThrow(() -> CarService.check(car));
-    }
-
-    @Test
-    void checkIncorrectCarNull() {
-        Assertions.assertDoesNotThrow(() -> CarService.check(null));
     }
 }
