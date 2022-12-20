@@ -9,7 +9,7 @@ public class Engine {
     private int power;
     private EngineTypes type;
 
-    public Engine(String generateRandomTypeOfEngine) {
+    public Engine(String getRandomEngine) {
     }
 
     public enum EngineTypes {
@@ -22,10 +22,10 @@ public class Engine {
 
     public Engine(int power, EngineTypes type) {
         this.power = random.nextInt(1000);
-        this.type = getRandomType();
+        this.type = getRandomEngine();
     }
 
-    private EngineTypes getRandomType() {
+    public EngineTypes getRandomEngine() {
         EngineTypes[] types = EngineTypes.values();
         int index = random.nextInt(types.length);
         return types[index];

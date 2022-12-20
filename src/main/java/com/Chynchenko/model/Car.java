@@ -2,6 +2,7 @@ package com.Chynchenko.model;
 
 import java.util.Random;
 import java.util.UUID;
+import java.util.Objects;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -30,21 +31,40 @@ import lombok.Setter;
     public enum Types
     {
         CAR,
-        TRUCK
+        TRUCK;
     }
 
-    Random random = new Random();
+    static Random random = new Random();
 
     public Car() {
     }
 
-    public Car(String manufacturer, Engine engine, Colors color) {
+    public Car(String manufacturer, Engine engine, Colors color, Types type) {
         this.manufacturer = manufacturer;
         this.engine = engine;
         this.color = color;
         this.count = 1;
         this.price = random.nextInt(2000, 90000);
         this.id = UUID.randomUUID().toString();
+        this.type = type;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Car car = (Car) o;
+        return Objects.equals(getId(), car.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, type);
+    }
+
+    @Override
+    public String toString() {
+        return String.format("[%s] %s",id, color);
     }
 
     public String getManufacturer() {
