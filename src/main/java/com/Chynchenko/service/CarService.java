@@ -6,11 +6,11 @@ import com.Chynchenko.model.PassengerCar;
 import com.Chynchenko.model.Truck;
 import com.Chynchenko.util.RandomGenerator;
 
-import java.util.Objects;
 import java.util.Random;
+import java.util.Optional;
+import java.util.Arrays;
 
 public class CarService {
-
     private CarArrayRepository carArrayRepository;
     public final RandomGenerator randomGenerator = new RandomGenerator();
 
@@ -26,35 +26,44 @@ public class CarService {
     public CarService(CarArrayRepository repository) {
     }
 
-    public int create(final RandomGenerator randomGenerator) {
-        if (randomGenerator == null) {
-            return -1;
-        }
-
-        int count = randomGenerator.generate();
-        if (count <= 0 || count > 10) {
-            return -1;
-        }
-
-        return count;
+    public void printManufacturerAndCount(Car car) {
+        Optional.ofNullable(car)
+                .ifPresent(c -> System.out.printf("Manufacturer: %s, count = %d%n", c.getManufacturer(), c.getCount()));
     }
 
-    public Car createCar(Car.Types type) {
-        if (type.equals(Car.Types.CAR)) {
-            createPassengerCar();
-            return createPassengerCar();
-        } else if (type.equals(Car.Types.TRUCK)) {
-            createTruck();
-            return createTruck();
-        }
-        return null;
+    public void printColor(Car car) {
+        Optional.ofNullable(car)
+                .map(Car::getColor)
+                .ifPresentOrElse(System.out::println, this::getRandomColor);
     }
 
-    public void create(int count) {
-        for (int i = 0; i < count; i++) {
-            carArrayRepository.save(createCar(getRandomType()));
-        }
+    public void checkCount(Car car) {
+        Car forCheck = Optional.ofNullable(car)
+                .filter(car1 -> car1.getCount() > 10)
+                .orElseThrow(UserInputException::new);
+        printManufacturerAndCount(forCheck);
     }
+
+    public void checkCount(Car[] cars) {
+        Arrays.stream(cars).forEach(this::checkCount);
+    }
+
+    public void printEngineInfo(Car car) {
+        Optional.ofNullable(car)
+                .or(() -> {
+                    System.out.println("No car, new random car will be created");
+                    return Optional.of(create());
+                })
+                .map(c -> c.getEngine().getPower())
+                .ifPresent(power -> System.out.println("Car's engine power = " + power));
+    }
+
+    public void printInfo(Car car) {
+        Optional.ofNullable(car)
+                .map(Car::getId)
+                .ifPresentOrElse(this::print, () -> print(create().getId()));
+    }
+
 
     public Car create() {
         String manufacturer = manufacturers[random.nextInt(manufacturers.length)];
@@ -69,21 +78,15 @@ public class CarService {
         return car;
     }
 
-    public int createCars() {
-        int count = RandomGenerator.generate();
-        for (int i = 0; i < count; i++) {
-            String manufacturer = RandomGenerator.generateRandomManufacture();
-            Engine engine = new Engine(RandomGenerator.generateRandomTypeOfEngine());
-            Car car = new Car(manufacturer, engine, getRandomColor(), getRandomType()) {
-                @Override
-                public int restoreCount() {
-                    return 0;
-                }
-            };
-            System.out.println("It's " + (i + 1) + " car: " + car);
+    public int create(final RandomGenerator randomGenerator) {
+        if (randomGenerator == null) {
+            return -1;
         }
-        int number = count == 0 ? -1 : count;
-        return number;
+        int count = randomGenerator.generate();
+        if (count <= 0 || count > 10) {
+            return -1;
+        }
+        return count;
     }
 
     public Car createPassengerCar() {
@@ -96,6 +99,35 @@ public class CarService {
         Car truck = new Truck();
         carArrayRepository.save(truck);
         return truck;
+    }
+
+    public Car createCar(Car.Types type) {
+        if (type.equals(Car.Types.CAR)) {
+            createPassengerCar();
+            return createPassengerCar();
+        } else if (type.equals(Car.Types.TRUCK)) {
+            createTruck();
+            return createTruck();
+        }
+        return null;
+    }
+
+    public int createCars() {
+        int count = RandomGenerator.generate();
+        for (int i = 0; i < count; i++) {
+            String manufacturer = RandomGenerator.generateRandomManufacture();
+            Engine engine = new Engine(RandomGenerator.generateRandomTypeOfEngine());
+            Car car = new Car(manufacturer, engine, getRandomColor(), getRandomType()) {
+
+                @Override
+                public int restoreCount() {
+                    return 0;
+                }
+            };
+            System.out.println("It's " + (i + 1) + " car: " + car);
+        }
+        int number = count == 0 ? -1 : count;
+        return number;
     }
 
     public boolean carEquals(Car firstCar, Car secondCar) {
@@ -200,6 +232,14 @@ public class CarService {
             randomColor = getRandomColor();
         } while (randomColor == color);
     }
+
+    public class UserInputException extends RuntimeException {
+
+        public UserInputException() {
+            super();
+        }
+    }
+
 }
 
 
