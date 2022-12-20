@@ -6,9 +6,18 @@ import com.Chynchenko.service.CarArrayRepository;
 import java.util.Objects;
 
 public class CarArrayRepository {
-    private static Car[] cars = new Car[10];
+    public static Car[] cars = new Car[10];
+    private static CarArrayRepository instance;
     private String id;
     private Car.Colors color;
+
+    public CarArrayRepository() {
+    }
+
+    public static CarArrayRepository getInstance() {
+        instance = Optional.ofNullable(instance).orElseGet(() -> new CarArrayRepository());
+        return instance;
+    }
 
     public void save( Car car) {
         final int index = putCar(car);

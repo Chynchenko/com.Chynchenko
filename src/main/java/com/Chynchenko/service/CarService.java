@@ -16,6 +16,8 @@ public class CarService {
 
     private final Random random = new Random();
 
+    private static CarService instance;
+
     private String[] manufacturers = {"BMW", "Mercedes", "Audi", "Opel", "VW"};
     private String[] typesOfEngines = {"Diesel", "Benzine", "Electric"};
 
@@ -24,6 +26,22 @@ public class CarService {
     }
 
     public CarService(CarArrayRepository repository) {
+    }
+
+    public static CarService getInstance() {
+        instance = Optional
+                .ofNullable(instance)
+                .orElseGet(() -> new CarService(CarArrayRepository.getInstance()));
+        return instance;
+    }
+
+    public static CarService getInstance(final CarArrayRepository repository) {
+        instance = Optional
+                .ofNullable(instance)
+                .orElseGet(() -> new CarService(Optional
+                        .ofNullable(repository)
+                        .orElseGet(() -> CarArrayRepository.getInstance())));
+        return instance;
     }
 
     public void printManufacturerAndCount(Car car) {
@@ -231,6 +249,13 @@ public class CarService {
         do {
             randomColor = getRandomColor();
         } while (randomColor == color);
+    }
+
+    public int compareCar(final Car firstCar, final Car secondCar) {
+        return firstCar.getId().compareTo(secondCar.getId());
+    }
+
+    public void createCar(int i, Car.Types car) {
     }
 
     public class UserInputException extends RuntimeException {

@@ -18,6 +18,11 @@ import lombok.Setter;
     private int price;
     public String id;
 
+    public int compareTo(Car id) {
+
+        return 0;
+    }
+
     public enum Colors
     {
         RED,
