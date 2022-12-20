@@ -4,11 +4,13 @@ import com.Chynchenko.model.Car;
 import com.Chynchenko.model.Engine;
 import com.Chynchenko.model.PassengerCar;
 import com.Chynchenko.model.Truck;
+import com.Chynchenko.repository.CarArrayRepository;
 import com.Chynchenko.util.RandomGenerator;
+import com.Chynchenko.util.UserInput;
 
-import java.util.Random;
-import java.util.Optional;
 import java.util.Arrays;
+import java.util.Optional;
+import java.util.Random;
 
 public class CarService {
     private CarArrayRepository carArrayRepository;
@@ -44,6 +46,10 @@ public class CarService {
         return instance;
     }
 
+    private static RuntimeException get() {
+        return new UserInput.UserInputException();
+    }
+
     public void printManufacturerAndCount(Car car) {
         Optional.ofNullable(car)
                 .ifPresent(c -> System.out.printf("Manufacturer: %s, count = %d%n", c.getManufacturer(), c.getCount()));
@@ -56,9 +62,10 @@ public class CarService {
     }
 
     public void checkCount(Car car) {
-        Car forCheck = Optional.ofNullable(car)
+        Car forCheck;
+        forCheck = Optional.ofNullable(car)
                 .filter(car1 -> car1.getCount() > 10)
-                .orElseThrow(UserInputException::new);
+                .orElseThrow(CarService::get);
         printManufacturerAndCount(forCheck);
     }
 
@@ -256,13 +263,6 @@ public class CarService {
     }
 
     public void createCar(int i, Car.Types car) {
-    }
-
-    public class UserInputException extends RuntimeException {
-
-        public UserInputException() {
-            super();
-        }
     }
 
 }

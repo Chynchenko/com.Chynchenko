@@ -1,11 +1,10 @@
-package com.Chynchenko.service;
-
+package com.Chynchenko.repository;
 import com.Chynchenko.model.Car;
-import com.Chynchenko.service.CarArrayRepository;
 
 import java.util.Objects;
+import java.util.Optional;
 
-public class CarArrayRepository {
+public class CarArrayRepository implements Repository<Car> {
     public static Car[] cars = new Car[10];
     private static CarArrayRepository instance;
     private String id;
