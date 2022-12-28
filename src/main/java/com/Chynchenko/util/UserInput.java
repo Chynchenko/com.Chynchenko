@@ -61,7 +61,7 @@ public class UserInput {
         return userId;
     }
 
-    public class UserInputException extends IndexOutOfBoundsException {
+    public static class UserInputException extends IndexOutOfBoundsException {
         public UserInputException() {
         }
 

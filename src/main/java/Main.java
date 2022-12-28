@@ -1,9 +1,8 @@
 
 import com.Chynchenko.model.Car;
-import com.Chynchenko.model.PassengerCar;
-import com.Chynchenko.model.Truck;
+import com.Chynchenko.repository.CarArrayRepository;
 import com.Chynchenko.service.CarService;
-import com.Chynchenko.service.CarArrayRepository;
+import com.Chynchenko.container.GenericContainer;
 
 public class Main {
     private static Car PassengerCar;
@@ -29,7 +28,15 @@ public class Main {
         System.out.println(result);
 
         carService.printAll();
+
+        GenericContainer<Car> genericContainer = new GenericContainer<>(carService.createCar(Car.Types.CAR));
+        genericContainer.print();
+        genericContainer.increaseCount();
+        genericContainer.print();
+        genericContainer.increaseCount(15);
+        genericContainer.print();
     }
+
 
        /* int i, y;
         for (i = 0, y = 5; i <= 10; i++, y += 2) {
