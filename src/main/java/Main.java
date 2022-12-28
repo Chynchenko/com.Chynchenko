@@ -2,7 +2,9 @@
 import com.Chynchenko.model.Car;
 import com.Chynchenko.repository.CarArrayRepository;
 import com.Chynchenko.service.CarService;
-import com.Chynchenko.container.GenericContainer;
+import com.Chynchenko.util.RandomGenerator;
+import com.Chynchenko.container.CarList;
+
 
 public class Main {
     private static Car PassengerCar;
@@ -11,67 +13,33 @@ public class Main {
     public static void main(String[] args) {
         CarService carService = new CarService(new CarArrayRepository());
 
-        Car count = carService.create();
-        System.out.println(count);
+        Car car1 = carService.createCar(RandomGenerator.getRandomType());
+
+        Car car2 = carService.createCar(RandomGenerator.getRandomType());
+        Car car3 = carService.createCar(RandomGenerator.getRandomType());
+        Car car4 = carService.createCar(RandomGenerator.getRandomType());
+
+        CarList<Car> list = new CarList<>();
+        list.addLast(car3);
+        list.addLast(car2);
+        list.addLast(car1);
+        list.addLast(carService.createCar(Car.Types.CAR));
+
+        System.out.println(list.getSize());
+        list.addFirst(carService.createCar(Car.Types.CAR));
+        list.addLast(null);
+        list.delete(5);
+        list.insert(car4,0);
+
+        System.out.println(list.findByValue(car1));
+
+        System.out.println(list.getSize());
 
         System.out.println();
-        for (Car car : carService.getAll()) {
-            car.restoreCount();
+        for (Car car : list) {
+            System.out.println("---");
+            System.out.println(car);
+            System.out.println(list.totalCount());
         }
-
-        carService.printManufacturerAndCount(null);
-        carService.printColor(null);
-        carService.printEngineInfo(null);
-        carService.printInfo(null);
-
-        boolean result = carService.carEquals(PassengerCar, Truck);
-        System.out.println(result);
-
-        carService.printAll();
-
-        GenericContainer<Car> genericContainer = new GenericContainer<>(carService.createCar(Car.Types.CAR));
-        genericContainer.print();
-        genericContainer.increaseCount();
-        genericContainer.print();
-        genericContainer.increaseCount(15);
-        genericContainer.print();
     }
-
-
-       /* int i, y;
-        for (i = 0, y = 5; i <= 10; i++, y += 2) {
-            System.out.println("Step" + " " + i + "," + "meaning" + " " + y);
-        }
-        for (i = 0; i < 10; i++) {
-            if (i == 3) {
-                continue;
-            }
-            if (i == 6) {
-                break;
-            }
-            System.out.println("Step" + " " + i);
-        }
-
-        CarService carService = new CarService();
-        Car car1 = carService.create();
-        carService.check(car1);
-        carService.print(car1);
-        Car car2 = carService.create();
-        carService.check(car2);
-        carService.print(car2);
-        Car car3 = carService.create();
-        carService.check(car3);
-        carService.print(car3);
-
-        final Car car4 = carService.create();
-        final Car car5 = carService.create();
-        final Car car6 = carService.create();
-
-        carService.create();
-        carService.printAll();
-        carService.create();
-        carService.printAll();
-
-        */
-
-    }
+}
