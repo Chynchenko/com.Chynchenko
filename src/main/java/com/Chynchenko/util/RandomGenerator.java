@@ -1,5 +1,7 @@
 package com.Chynchenko.util;
 
+import com.Chynchenko.model.Car;
+
 import java.util.Random;
 
 public class RandomGenerator {
@@ -12,6 +14,10 @@ public class RandomGenerator {
 
     private static String[] manufacturers = {"BMW", "Mercedes", "Audi", "Opel", "VW"};
     private static String[] typesOfEngines = {"Diesel", "Benzine", "Electric"};
+
+    public static Car.Types getRandomType() {
+        return Car.Types.values() [random.nextInt(Car.Types.values().length)];
+    }
 
     public int generateRandomNumber() {
         return random.nextInt(0, 11);
