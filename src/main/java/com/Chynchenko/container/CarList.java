@@ -107,6 +107,10 @@ public class CarList <E extends Car> implements Iterable<E>{
         }
         return count;
     }
+
+    public void add(E car1) {
+    }
+
     public class CarListIterator implements Iterator<E> {
         Node<E> current = head;
 

@@ -11,7 +11,7 @@ import lombok.Setter;
     public abstract class Car implements CountRestore {
     public static Colors Colors;
     private String manufacturer;
-    private Engine engine;
+    private static Engine engine;
     private Colors color;
     private Types type;
     private int count;
@@ -36,7 +36,7 @@ import lombok.Setter;
     public enum Types
     {
         CAR,
-        TRUCK;
+        TRUCK, type;
     }
 
     static Random random = new Random();
@@ -75,10 +75,10 @@ import lombok.Setter;
     public String getManufacturer() {
         return manufacturer;
     }
-    public void setManufacturer(String manufacturer) {
+    public void setManufacturer() {
         this.manufacturer = manufacturer;
     }
-    public Engine getEngine() {
+    public static Engine getEngine() {
         return engine;
     }
     public void setEngine(Engine engine) {

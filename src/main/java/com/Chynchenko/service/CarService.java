@@ -8,9 +8,10 @@ import com.Chynchenko.repository.CarArrayRepository;
 import com.Chynchenko.util.RandomGenerator;
 import com.Chynchenko.util.UserInput;
 
-import java.util.Arrays;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
+
+import static com.Chynchenko.model.Car.Types.type;
+import static com.Chynchenko.model.Car.getEngine;
 
 public class CarService {
     private CarArrayRepository carArrayRepository;
@@ -126,7 +127,7 @@ public class CarService {
         return truck;
     }
 
-    public Car createCar(Car.Types type) {
+    public Car createCar(Car.Types car) {
         if (type.equals(Car.Types.CAR)) {
             createPassengerCar();
             return createPassengerCar();
@@ -196,7 +197,7 @@ public class CarService {
     public void print(Car car) {
 
         System.out.println("{manufacturer: " + car.getManufacturer() +
-                ", engine: " + car.getEngine() +
+                ", engine: " + getEngine() +
                 ", color: " + car.getColor() +
                 ", count: " + car.getCount() +
                 ", price: " + car.getPrice() +
@@ -204,11 +205,11 @@ public class CarService {
     }
 
     public static void check(Car car) {
-        if (car.getCount() > 0 && car.getEngine().getPower() > 200) {
+        if (car.getCount() > 0 && getEngine().getPower() > 200) {
             System.out.println("Car is ready to sell");
-        } else if (car.getCount() < 1 && car.getEngine().getPower() <= 200) {
+        } else if (car.getCount() < 1 && getEngine().getPower() <= 200) {
             System.out.println("Car amount is less than 1 and low power");
-        } else if (car.getEngine().getPower() <= 200) {
+        } else if (getEngine().getPower() <= 200) {
             System.out.println("LOW POWER");
         } else if (car.getCount() < 1) {
             System.out.println("AMOUNT IS LESS THAN 1");
