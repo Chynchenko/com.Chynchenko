@@ -17,6 +17,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 
+import repository.CarJdbcRepository;
 import repository.CarListRepository;
 import repository.CarRepository;
 import repository.Repository;
@@ -173,7 +174,7 @@ public class CarService {
         return instance;
     }
 
-    public CarService(final CarListRepository carArrayRepository) {
+    public CarService(final CarJdbcRepository carArrayRepository) {
         this.carArrayRepository = carArrayRepository;
     }
 

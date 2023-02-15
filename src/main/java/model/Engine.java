@@ -3,18 +3,25 @@ package model;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.UUID;
+
 @Getter
 @Setter
 public class Engine {
     private int power;
     private String type;
+    private String engineID;
 
     public Engine(int power, String type) {
         this.power = power;
         this.type = type;
+        this.engineID= UUID.randomUUID().toString();
     }
 
-    public Engine() {
+    public Engine(int power, String type,String engineID) {
+        this.power = power;
+        this.type = type;
+        this.engineID= engineID;
     }
 
     @Override
