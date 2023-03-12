@@ -11,7 +11,6 @@ import java.util.*;
 @ToString
 public class AnnotationProcessor {
     public static final Map<Class, Object> CACHE = new HashMap<>();
-
     public void executeSingleton() {
         Reflections reflections = new Reflections("com.Chynchenkoo.repository");
         Set<Class<?>> classSet = reflections.getTypesAnnotatedWith(Singleton.class);
@@ -19,6 +18,7 @@ public class AnnotationProcessor {
             createAndCacheObject(aClass);
         }
     }
+
     public void executeAutowired() {
         Reflections reflections = new Reflections("com.Chynchenkoo");
         Set<Class<?>> typesAnnotatedWithSingleton = reflections.getTypesAnnotatedWith(Singleton.class);
@@ -46,6 +46,7 @@ public class AnnotationProcessor {
                     });
         }
     }
+
     private void createAndCacheObject(Class<?> aClass) {
         Method getInstance = null;
         try {
@@ -55,9 +56,6 @@ public class AnnotationProcessor {
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             throw new RuntimeException(e);
         }
-
         CACHE.put(aClass, getInstance);
-
     }
 }
-
