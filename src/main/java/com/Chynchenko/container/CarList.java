@@ -1,143 +1,235 @@
 package com.Chynchenko.container;
+
 import com.Chynchenko.model.Car;
-import lombok.Getter;
+import com.Chynchenko.model.PassengerCar;
+
 import java.util.Iterator;
 
-public class CarList <E extends Car> implements Iterable<E>{
-    private Node<E> head;
-    private Node<E> tail;
-    @Getter
-    private int size;
+public class CarList {
+    public static void main(String[] args) {
+        LinkedlistRealization<Car> linkedRealization = new LinkedlistRealization<>();
+        PassengerCar passengerCar1 = new PassengerCar();
+        PassengerCar passengerCar2 = new PassengerCar();
+        PassengerCar passengerCar3 = new PassengerCar();
+        PassengerCar passengerCar4 = new PassengerCar();
+        PassengerCar passengerCar5 = new PassengerCar();
+        linkedRealization.addFirstElement(passengerCar1);
+        linkedRealization.addFirstElement(passengerCar2);
+        linkedRealization.addFirstElement(passengerCar3);
+        linkedRealization.addFirstElement(passengerCar4);
+        linkedRealization.addFirstElement(passengerCar5);
+        System.out.println("Size before: " + linkedRealization.size());
+        for (Car car : linkedRealization) {
+            System.out.println("Asc ->" + car.getId());
+        }
 
-    public void addFirst(E value){
-        if(head == null){
-            Node<E> node = new Node<>(value, null, null);
-            head = node;
-            tail = node;
-        }else{
-            Node<E> node = new Node<>(value, null, head);
-            head.previous = node;
-            head = node;
-        }
-        size++;
-    }
-    public void addLast(E value){
-        if(tail == null){
-            Node<E> node = new Node<>(value, null, null);
-            tail = node;
-            head = node;
-        }else{
-            Node<E> node = new Node<>(value, tail, null);
-            tail.next = node;
-            tail = node;
-        }
-        size++;
-    }
-    public void insert( E value, int index) {
-        if (index == 0) {
-            addFirst(value);
-            return;
-        }
-        if (index >= size) {
-            addLast(value);
-            return;
-        }
-        Node<E> node = getIndex(index);
-        Node<E> tempNode = node.previous;
-        Node<E> newNode = new Node<>(value, tempNode, node);
-        tempNode.next = newNode;
-        node.previous = newNode;
+        System.out.println("Car insert: " + passengerCar3);
+        linkedRealization.insertElement(4, passengerCar3);
+        System.out.println("Size after insert: " + linkedRealization.size());
 
+        for (Car car : linkedRealization) {
+            System.out.println("Asc ->" + car.getId());
+        }
+        System.out.println("Car index delete: " + 4);
+        linkedRealization.deleteElement(4);
+        System.out.println("Size after delete: " + linkedRealization.size());
+        for (Car car : linkedRealization) {
+            System.out.println("Asc ->" + car.getId());
+        }
+
+        Iterator<Car> iterator = linkedRealization.descendingIterator();
+        while (iterator.hasNext()) {
+            System.out.println("Desc ->" + iterator.next());
+        }
+
+
+    }
+}
+
+class LinkedlistRealization<E extends Car> implements Linked<E>, Iterable<E>, DescendingIterator<E> {
+    private Node<E> firstNode;
+    private Node<E> lastNode;
+    private int size = 0;
+
+
+    public LinkedlistRealization() {
+        lastNode = new Node<>(null, firstNode, null);
+        firstNode = new Node<>(null, null, lastNode);
+    }
+
+    @Override
+    public void addLastElement(final E element) {
+        Node<E> prev = lastNode;
+        prev.setElement(element);
+        lastNode = new Node<>(null, prev, null);
+        prev.setNextElement(lastNode);
         size++;
     }
-    public int findByValue(final E car) {
-        int i = 0;
-        for (E value : this) {
-            if (value.getId().equals(car.getId())) {
-                break;
+
+    @Override
+    public void addFirstElement(final E element) {
+        Node<E> next = firstNode;
+        next.setElement(element);
+        firstNode = new Node<>(null, null, next);
+        next.setPreviousElement(firstNode);
+        size++;
+    }
+
+    @Override
+    public int indexOfElement(final E element) {
+        for (int i = 0; i < size(); i++) {
+            if (getElementByIndex(i).getId().equals(element.getId())) {
+                return i;
             }
-            i++;
         }
-        return i;
+        return 0;
     }
-    public void delete(final int index) {
 
-        Node<E> node = getIndex(index);
-        Node<E> prevNode = node.previous;
-        Node<E> nextNode = node.next;
+    public E getElementByIndex(final int counter) {
+        Node<E> target = firstNode.getNextElement();
+        for (int i = 0; i < counter; i++) {
+            target = getNextElement(target);
+        }
+        return target.getElement();
+    }
 
+    private Node<E> getNodeByIndex(final int counter) {
+        Node<E> target = firstNode.getNextElement();
+        for (int i = 0; i < counter; i++) {
+            target = getNextElement(target);
+        }
+        return target;
+    }
+
+    private Node<E> getNextElement(Node<E> current) {
+        return current.getNextElement();
+    }
+
+
+    @Override
+    public void insertElement(final int index,final  E element) {
+        if (index == 0) {
+            addFirstElement(element);
+        }
+        if (index == size()) {
+            addLastElement(element);
+
+        } else {
+            Node<E> node = getNodeByIndex(index);
+            Node<E> newNode = new Node<>(element, node.getPreviousElement(), node.getNextElement());
+            Node<E> prevNode = node.previousElement;
+            newNode.setElement(element);
+            newNode.nextElement = node;
+            newNode.previousElement = prevNode;
+            prevNode.nextElement = newNode;
+            node.previousElement = newNode;
+            size++;
+        }
+    }
+
+    @Override
+    public void deleteElement(final int index) {
+        Node<E> node = getNodeByIndex(index);
+        Node<E> prevNode = node.previousElement;
+        Node<E> nextNode = node.nextElement;
         if (size == 1) {
-            head.next = tail;
-            tail.previous = head;
+            firstNode.nextElement = lastNode;
+            lastNode.previousElement = firstNode;
             size--;
         } else if (index == 0) {
-            head.next = nextNode;
-            nextNode.previous = null;
-            node.next = null;
+            firstNode.nextElement = nextNode;
+            nextNode.previousElement = null;
+            node.nextElement = null;
             size--;
-        } else if (index == getSize() - 1) {
-            tail.previous = prevNode;
-            prevNode.next = null;
-            node.previous = null;
+        } else if (index == size() - 1) {
+            lastNode.previousElement = prevNode;
+            prevNode.nextElement = null;
+            node.previousElement = null;
             size--;
         } else {
-            prevNode.next = nextNode;
-            nextNode.previous = prevNode;
-            node.next = null;
-            node.previous = null;
+            prevNode.nextElement = nextNode;
+            nextNode.previousElement = prevNode;
+            node.nextElement = null;
+            node.previousElement = null;
             size--;
         }
     }
-    public Node<E> getIndex(int index) {
-        if (index >= size) {
-            throw new IndexOutOfBoundsException();
-        }
-        Node<E> node = head.next;
-        while (index -- > 1) {
-            node = node.next;
-        }
-        return node;
-    }
-    public int totalCount() {
-        Node<E> current = head;
-        int count = 0;
-        while (current.next != null) {
-            count += current.getValue().getCount();
-            current = current.next;
-        }
-        return count;
-    }
-    public class CarListIterator implements Iterator<E> {
-        Node<E> current = head;
 
-        @Override
-        public E next(){
-            E lastReturnNode = current.value;
-            current = current.next;
-            return lastReturnNode;
-        }
-        @Override
-        public boolean hasNext(){
-            return current != null;
-        }
-    }
     @Override
-    public Iterator<E> iterator(){
-        return new CarListIterator();
+    public int size() {
+        return size;
     }
-    private class Node<E> {
 
-        private E value;
-        private Node<E> previous;
-        private Node<E> next;
+    @Override
+    public Iterator<E> iterator() {
+        return new Iterator<E>() {
+            int counter = 0;
 
-        Node(E value, Node<E> previous, Node<E> next) {
-            this.value = value;
-            this.previous = previous;
-            this.next = next;
+            @Override
+            public boolean hasNext() {
+                return counter < size;
+            }
+
+            @Override
+            public E next() {
+                return getElementByIndex(counter++);
+            }
+        };
+    }
+
+
+    @Override
+    public Iterator<E> descendingIterator() {
+        return new Iterator<E>() {
+            int counter = size - 1;
+
+            @Override
+            public boolean hasNext() {
+                return counter >= 0;
+            }
+
+            @Override
+            public E next() {
+                return getElementByIndex(counter--);
+            }
+        };
+    }
+
+
+    static class Node<E extends Car> {
+        private Node<E> previousElement;
+        private Node<E> nextElement;
+        private E element;
+        public static int size;
+
+        public Node(E element, Node<E> previousElement, Node<E> nextElement) {
+            this.element = element;
+            this.previousElement = previousElement;
+            this.nextElement = nextElement;
         }
-        public E getValue(){
-            return value;
+
+        public Node<E> getPreviousElement() {
+            return previousElement;
+        }
+
+        public void setPreviousElement(Node<E> previousElement) {
+            this.previousElement = previousElement;
+        }
+
+        public Node<E> getNextElement() {
+            return nextElement;
+        }
+
+        public void setNextElement(Node<E> nextElement) {
+            this.nextElement = nextElement;
+        }
+
+        public E getElement() {
+            return element;
+        }
+
+        public void setElement(E element) {
+            this.element = element;
         }
     }
 }

@@ -1,10 +1,11 @@
 package com.Chynchenko.action;
+
+import com.Chynchenko.repository.CarRepository;
 import com.Chynchenko.service.CarService;
-import java.io.IOException;
 
 public interface Action {
 
-        CarService CAR_SERVICE = CarService.getInstance();
+        CarRepository CAR_SERVICE = CarService.getInstance();
         void execute();
     }
 
