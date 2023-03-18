@@ -1,11 +1,12 @@
 package com.Chynchenko.action;
-import com.Chynchenko.model.Car;
 
+import com.Chynchenko.model.Car;
+import com.Chynchenko.model.Type;
 
 public class CompareAction implements Action {
     @Override
     public void execute() {
-        CAR_SERVICE.createCar(5, Car.Types.CAR);
+        CAR_SERVICE.createCar(Type.CAR, 5);
         final Car[] all = CAR_SERVICE.getAll();
         for (int i = 0; i < all.length - 1; i++) {
             Car currentCar = all[i];

@@ -1,50 +1,45 @@
 package com.Chynchenko.model;
+
 import lombok.Getter;
 import lombok.Setter;
-import java.util.Random;
 
-@Setter
 @Getter
+@Setter
 public class Engine {
     private int power;
-    private EngineTypes type;
+    private String type;
 
-    public Engine(String getRandomEngine) {
-    }
-
-    public enum EngineTypes {
-        GAS,
-        DIESEL,
-        ELECTRIC
-    }
-
-    Random random = new Random();
-
-    public Engine(int power, EngineTypes type) {
-        this.power = random.nextInt(1000);
-        this.type = getRandomEngine();
-    }
-
-    public EngineTypes getRandomEngine() {
-        EngineTypes[] types = EngineTypes.values();
-        int index = random.nextInt(types.length);
-        return types[index];
-    }
-
-    public int getPower() {
-        return power;
-    }
-
-    public void setPower(int power) {
+    public Engine(int power, String type) {
         this.power = power;
-    }
-
-    public EngineTypes getType() {
-        return type;
-    }
-
-    public void setType(EngineTypes type) {
         this.type = type;
     }
 
+    public Engine() {
+    }
+
+
+    @Override
+    public String toString() {
+        return "[" +
+                "power=" + power +
+                ", type=" + type + "]";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Engine engine = (Engine) o;
+
+        if (power != engine.power) return false;
+        return type.equals(engine.type);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = power;
+        result = 31 * result + type.hashCode();
+        return result;
+    }
 }
