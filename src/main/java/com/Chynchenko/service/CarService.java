@@ -5,13 +5,110 @@ import com.Chynchenko.repository.CarRepository;
 import com.Chynchenko.util.RandomGenerator;
 
 import java.util.*;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
+import static com.Chynchenko.model.Type.CAR;
+import static com.Chynchenko.repository.CarRepository.instance;
 
 public class CarService {
-    private final CarRepository carArrayRepository;
-    private static CarService instance;
-    public final RandomGenerator randomGenerator = new RandomGenerator();
+        public final RandomGenerator randomGenerator = new RandomGenerator();
 
-    private final Random random = new Random();
+        private final Random random = new Random();
+    private final CarRepository carArrayRepository;
+
+    public Map<Color, Integer> innerList (List<Car> cars, int price) {
+            return cars.stream()
+                    .sorted(new Comparator<Car>() {
+                        @Override
+                        public int compare(Car o1, Car o2) {
+                            return o1.getColor().compareTo(o2.getColor());
+                        }
+                    })
+                    .peek(System.out::println)
+                    .filter(car -> car.getPrice() >= price)
+                    .collect(Collectors.toMap(Car::getColor,Car::getCount));
+        }
+
+    Function<Map<String, Object>, Car> mapToObject = map -> {
+        Type type = (Type) map.getOrDefault("type", CAR);
+        if (type == CAR) {
+            return createPassengerCar(map);
+        } else {
+            return createTruck(map);
+        }
+    };
+
+    private PassengerCar createPassengerCar(final Map<String, Object> map) {
+        final PassengerCar passengerCar = (PassengerCar) createCar(CAR, map);
+        final int passengerCount = (int) map.getOrDefault("passengerCount", 10);
+        passengerCar.setPassengerCount(passengerCount);
+        return passengerCar;
+    }
+
+    private Truck createTruck(final Map<String, Object> map) {
+        final Truck truck = (Truck) createCar(Type.TRUCK, map);
+        final int loadCapacity = (int) map.getOrDefault("loadCapacity", 50);
+        truck.setLoadCapacity(loadCapacity);
+        return truck;
+    }
+
+    private Car createCar(final Type type, final Map<String, Object> map) {
+        final Car car;
+        if (type == CAR) {
+            car = new PassengerCar();
+
+        } else {
+            car = new Truck();
+        }
+        final String manufacturer = (String) map.getOrDefault("manufacturer","ORIGINAL");
+        car.setManufacturer(manufacturer);
+        final Engine engine = (Engine) map.getOrDefault("engine", new Engine(100,"Skoda"));
+        car.setEngine(engine);
+        final Color color = (Color) map.getOrDefault("color",Color.BLUE);
+        car.setColor(color);
+        final int price = (int) map.getOrDefault("price",500);
+        car.setPrice(price);
+        final int count = (int) map.getOrDefault("count",1);
+        car.setCount(count);
+        return car;
+    }
+
+
+    public boolean priceCheck (List <Car> cars,int price) {
+        final Predicate<Car> myPredicate = car -> car.getPrice() > price;
+        return cars.stream()
+                .allMatch(myPredicate);
+    }
+
+    public String statistic (List <Car> cars) {
+        return  cars.stream()
+                .mapToInt(Car::getPrice)
+                .summaryStatistics()
+                .toString();
+
+    }
+    public Map <String,Type> mapToMap(List<Car> cars) {
+        return cars.stream()
+                .sorted(Comparator.comparing(Car::getManufacturer))
+                .distinct()
+                .collect(Collectors.toMap(Car::getId, Car::getType, (a, b) -> b));
+    }
+
+    public int countSum(List<Car> cars) {
+        return cars.stream()
+                .map(Car::getCount)
+                .reduce(0, Integer::sum);
+    }
+
+    public void findManufacturerByPrice (List<Car> cars, int price) {
+        cars.stream()
+                .filter(car -> car.getPrice() > price)
+                .map(Car::getManufacturer)
+                .forEach(System.out::println);
+    }
+
     public Map<String,Integer>  mappingListManufacturerAndCount (List<Car> cars) {
         Map <String,Integer>  map = new HashMap<>();
         for (Car car : cars) {
@@ -19,55 +116,51 @@ public class CarService {
         }
         return map;
     }
-
     public Map<Engine,List<Car>>  mappingListEngineAndCar (List<Car> cars) {
         Map <Engine,List<Car>>  map = new HashMap<>();
-
         for (Car car : cars) {
             map.put(car.getEngine(),new ArrayList<>());
         }
         for (Car car : cars) {
             map.get(car.getEngine()).add(car);
         }
-
         return map;
     }
-
-
-
-
-
+    
     public int compareCar(final Car first, final Car second) {
         return first.getId().compareTo(second.getId());
     }
-    public static CarService getInstance() {
+    public static CarRepository getInstance() {
         if (instance == null) {
-            instance = new CarService(CarRepository.getInstance());
+            instance = new CarRepository(CarRepository.getInstance());
         }
         return instance;
     }
-    public static CarService getInstance(final CarRepository repository) {
+    public static CarRepository getInstance(final CarRepository repository) {
         if (instance == null) {
-            instance = new CarService(repository);
+            instance = new CarRepository(repository);
         }
         return instance;
     }
-    public CarService(final CarRepository carArrayRepository) {
-        this.carArrayRepository = carArrayRepository;
+    public CarService(final CarRepository carRepository) {
+        this.carArrayRepository = carRepository;
     }
     public void printInfo(final Car car) {
         final Optional<Car> optionalCar = Optional.ofNullable(car);
         optionalCar.ifPresentOrElse(car1 -> {
             print(car1);
         }, () -> {
-            final Car newCar = createCar(Type.CAR);
+            final Car newCar = createCar(CAR);
             printInfo(newCar);
         });
+
     }
+
     public void printEngineInfo(Car car) {
-        car = Optional.ofNullable(car).orElseGet(() -> createCar(Type.CAR));
+        car = Optional.ofNullable(car).orElseGet(() -> createCar(CAR));
         Optional.ofNullable(car).map(Car::getEngine).ifPresent(System.out::println);
     }
+
     public void checkCount(final Car car) {
         final Optional<Car> optionalCar = Optional.ofNullable(car);
         if (car != null) {
@@ -87,10 +180,12 @@ public class CarService {
             });
         }
     }
+
     public void printColor(final Car car) {
-        final Car expectedCarOrNew = Optional.ofNullable(car).orElse(createCar(Type.CAR));
+        final Car expectedCarOrNew = Optional.ofNullable(car).orElse(createCar(CAR));
         System.out.println("Color  of car id: " + expectedCarOrNew.getId() + " " + expectedCarOrNew.getColor());
     }
+
     public void printManufacturerAndCount(final Car car) {
         final Optional<Car> optionalCar = Optional.ofNullable(car);
         optionalCar.ifPresent(someCar -> {
@@ -132,8 +227,9 @@ public class CarService {
         carArrayRepository.save(car);
         return car;
     }
+
     private Car createCarType(Type type) {
-        if (type.equals(Type.CAR)) {
+        if (type.equals(CAR)) {
             PassengerCar passengerCar = new PassengerCar();
             passengerCar.setPassengerCount(randomGenerator.generate());
             return passengerCar;

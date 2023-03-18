@@ -2,18 +2,19 @@ package com.Chynchenko.repository;
 
 import com.Chynchenko.model.Car;
 import com.Chynchenko.model.Color;
+import com.Chynchenko.model.Type;
 
 public class CarRepository implements Repository<Car>{
 
     private static Car[] cars = new Car[10];
-    private static CarRepository instance;
+    public static CarRepository instance;
 
 
-    public CarRepository() {
+    public CarRepository(CarRepository instance) {
     }
     public static CarRepository getInstance() {
         if (instance == null) {
-            instance = new CarRepository();
+            instance = new CarRepository(CarRepository.getInstance());
         }
         return instance;
     }
@@ -106,4 +107,13 @@ public class CarRepository implements Repository<Car>{
         cars = newCars;
     }
 
+    public void printAll() {
+    }
+
+    public void createCar(Type car, int i) {
+    }
+
+    public int compareCar(Car currentCar, Car nextCar) {
+        return 0;
+    }
 }
