@@ -1,7 +1,9 @@
 package com.Chynchenko.service;
 
 import com.Chynchenko.model.*;
+import com.Chynchenko.repository.CarMapRepository;
 import com.Chynchenko.repository.CarRepository;
+import com.Chynchenko.repository.Repository;
 import com.Chynchenko.util.RandomGenerator;
 import org.apache.commons.lang3.EnumUtils;
 
@@ -19,10 +21,14 @@ import java.util.stream.Collectors;
 import static com.Chynchenko.model.CarType.CAR;
 
 public class CarService {
-    private final CarRepository carArrayRepository;
+    private final Repository<Car> carArrayRepository;
     private static CarService instance;
     public final RandomGenerator randomGenerator = new RandomGenerator();
     private final Random random = new Random();
+
+    private CarService(final Repository<Car> repository) {
+        this.carArrayRepository = repository;
+    }
 
     public Map<String, Object> mapFromFile(String path) throws IOException {
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
@@ -47,7 +53,7 @@ public class CarService {
         return map;
     }
 
-    public Map <Color, Integer> innerList (List <List<Car>> cars,int price) {
+    public Map<Color, Integer> innerList(List<List<Car>> cars, int price) {
 
         return cars.stream().flatMap(List::stream)
                 .sorted(Comparator.comparing(Car::getColor))
@@ -83,7 +89,6 @@ public class CarService {
         final Car car;
         if (carType == CAR) {
             car = new PassengerCar();
-
         } else {
             car = new Truck();
         }
@@ -107,7 +112,6 @@ public class CarService {
 
     public String statistic(List<Car> cars) {
         return cars.stream().mapToInt(Car::getPrice).summaryStatistics().toString();
-
     }
 
     public Map<String, CarType> mapToMap(List<Car> cars) {
@@ -132,7 +136,6 @@ public class CarService {
 
     public Map<Engine, List<Car>> mappingListEngineAndCar(List<Car> cars) {
         Map<Engine, List<Car>> map = new HashMap<>();
-
         for (Car car : cars) {
             map.put(car.getEngine(), new ArrayList<>());
         }
@@ -141,6 +144,7 @@ public class CarService {
         }
         return map;
     }
+
     public int compareCar(final Car first, final Car second) {
         return first.getId().compareTo(second.getId());
     }
@@ -158,9 +162,11 @@ public class CarService {
         }
         return instance;
     }
-    public CarService(final CarRepository carArrayRepository) {
+
+    public CarService(final CarMapRepository carArrayRepository) {
         this.carArrayRepository = carArrayRepository;
     }
+
     public void printInfo(final Car car) {
         final Optional<Car> optionalCar = Optional.ofNullable(car);
         optionalCar.ifPresentOrElse(car1 -> {
@@ -170,10 +176,12 @@ public class CarService {
             printInfo(newCar);
         });
     }
+
     public void printEngineInfo(Car car) {
         car = Optional.ofNullable(car).orElseGet(() -> createCar(CAR));
         Optional.ofNullable(car).map(Car::getEngine).ifPresent(System.out::println);
     }
+
     public void checkCount(final Car car) {
         final Optional<Car> optionalCar = Optional.ofNullable(car);
         if (car != null) {
@@ -193,10 +201,12 @@ public class CarService {
             });
         }
     }
+
     public void printColor(final Car car) {
         final Car expectedCarOrNew = Optional.ofNullable(car).orElse(createCar(CAR));
         System.out.println("Color  of car id: " + expectedCarOrNew.getId() + " " + expectedCarOrNew.getColor());
     }
+
     public void printManufacturerAndCount(final Car car) {
         final Optional<Car> optionalCar = Optional.ofNullable(car);
         optionalCar.ifPresent(someCar -> {
@@ -275,14 +285,13 @@ public class CarService {
         }
         return -1;
     }
-    public void insert(int index, final Car car) {
-        carArrayRepository.insert(index, car);
-    }
+
     private Color getRandomColor() {
         final Color[] values = Color.values();
         final int randomIndex = random.nextInt(values.length);
         return values[randomIndex];
     }
+
     private String createString() {
         StringBuilder sb = new StringBuilder();
         int stringLength = random.nextInt(1, 10);
@@ -309,41 +318,68 @@ public class CarService {
             System.out.println("AMOUNT IS LESS THAN 1");
         }
     }
+
     public void printAll() {
         final Car[] all = carArrayRepository.getAll();
         for (Car car : all) {
             print(car);
         }
     }
+
     public Car[] getAll() {
         return carArrayRepository.getAll();
     }
-    public Car find(final String id) {
-        return notNullNotEmpty(id) ? carArrayRepository.getById(id) : null;
+
+    public Optional<Car> find(final String id) {
+        if (id == null || id.isEmpty()) {
+            return Optional.empty();
+        }
+        return carArrayRepository.getById(id);
     }
+
     public void delete(final String id) {
         if (notNullNotEmpty(id)) {
             carArrayRepository.delete(id);
         }
     }
+
     public void changeRandomColor(final String id) {
-        if (notNullNotEmpty(id)) {
-            final Car car = find(id);
-            if (car == null) {
-                return;
-            }
-            findAndChangeRandomColor(car);
+        if (id == null || id.isEmpty()) {
+            return;
         }
+        find(id).ifPresent(this::findAndChangeRandomColor);
     }
+
     private boolean notNullNotEmpty(String id) {
         return !(id == null || id.isEmpty());
     }
+
     private void findAndChangeRandomColor(final Car car) {
         final Color color = car.getColor();
-        Color randomColor;
-        do {
-            randomColor = getRandomColor();
-        } while (randomColor == color);
-        carArrayRepository.updateColor(car.getId(), randomColor);
+        final Color randomColor = Color.getRandomColor(color);
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
