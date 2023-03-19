@@ -1,206 +1,301 @@
 package com.Chynchenko.service;
 
-import com.Chynchenko.model.Car;
-import com.Chynchenko.model.Engine;
-import com.Chynchenko.model.PassengerCar;
-import com.Chynchenko.model.Truck;
-import com.Chynchenko.repository.CarArrayRepository;
+import com.Chynchenko.model.*;
+import com.Chynchenko.repository.CarRepository;
 import com.Chynchenko.util.RandomGenerator;
-import com.Chynchenko.util.UserInput;
+import org.apache.commons.lang3.EnumUtils;
 
-import java.util.Arrays;
-import java.util.Optional;
-import java.util.Random;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.*;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import static com.Chynchenko.model.CarType.CAR;
 
 public class CarService {
-    private CarArrayRepository carArrayRepository;
+    private final CarRepository carArrayRepository;
+    private static CarService instance;
     public final RandomGenerator randomGenerator = new RandomGenerator();
-
     private final Random random = new Random();
 
-    private static CarService instance;
-
-    private String[] manufacturers = {"BMW", "Mercedes", "Audi", "Opel", "VW"};
-    private String[] typesOfEngines = {"Diesel", "Benzine", "Electric"};
-
-    public CarService() {
-        this.carArrayRepository = carArrayRepository;
+    public Map<String, Object> mapFromFile(String path) throws IOException {
+        ClassLoader loader = Thread.currentThread().getContextClassLoader();
+        InputStream input = loader.getResourceAsStream(path);
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(input));
+        final Map<String, Object> map = new HashMap<>();
+        List<String> collect = bufferedReader.lines().toList();
+        final Pattern pattern = Pattern.compile("(\\w|-)+");
+        Matcher matcher;
+        String key = null;
+        String value;
+        for (String s : collect) {
+            matcher = pattern.matcher(s);
+            if (matcher.find()) {
+                key = matcher.group();
+            }
+            if (matcher.find()) {
+                value = matcher.group();
+                map.put(key, value);
+            }
+        }
+        return map;
     }
 
-    public CarService(CarArrayRepository repository) {
+    public Map <Color, Integer> innerList (List <List<Car>> cars,int price) {
+
+        return cars.stream().flatMap(List::stream)
+                .sorted(Comparator.comparing(Car::getColor))
+                .peek(System.out::println)
+                .filter(car -> car.getPrice() > price)
+                .collect(Collectors.toMap(Car::getColor, Car::getCount));
+    }
+
+    public Function<Map<String, Object>, Car> mapToObject = map -> {
+        CarType carType = EnumUtils.getEnum(CarType.class, (String) map.getOrDefault("CarType", "CAR"));
+        if (carType == CAR) {
+            return createPassengerCar(map);
+        } else {
+            return createTruck(map);
+        }
+    };
+
+    private PassengerCar createPassengerCar(final Map<String, Object> map) {
+        final PassengerCar passengerCar = (PassengerCar) createCar(CAR, map);
+        final int passengerCount = Integer.parseInt((String) map.getOrDefault("passengerCount", 10));
+        passengerCar.setPassengerCount(passengerCount);
+        return passengerCar;
+    }
+
+    private Truck createTruck(final Map<String, Object> map) {
+        final Truck truck = (Truck) createCar(CarType.TRUCK, map);
+        final int loadCapacity = Integer.parseInt((String) map.getOrDefault("loadCapacity", 50));
+        truck.setLoadCapacity(loadCapacity);
+        return truck;
+    }
+
+    private Car createCar(final CarType carType, final Map<String, Object> map) {
+        final Car car;
+        if (carType == CAR) {
+            car = new PassengerCar();
+
+        } else {
+            car = new Truck();
+        }
+        final String manufacturer = (String) map.getOrDefault("manufacturer", "ORIGINAL");
+        car.setManufacturer(manufacturer);
+        final Engine engine = new Engine(Integer.parseInt((String) map.get("power")), (String) map.get("type"));
+        car.setEngine(engine);
+        Color color = EnumUtils.getEnum(Color.class, (String) map.getOrDefault("Color", "AQUA"));
+        car.setColor(color);
+        final int price = Integer.parseInt((String) map.getOrDefault("price", 500));
+        car.setPrice(price);
+        final int count = Integer.parseInt((String) map.getOrDefault("count", 1));
+        car.setCount(count);
+        return car;
+    }
+
+    public boolean priceCheck(List<Car> cars, int price) {
+        final Predicate<Car> myPredicate = car -> car.getPrice() > price;
+        return cars.stream().allMatch(myPredicate);
+    }
+
+    public String statistic(List<Car> cars) {
+        return cars.stream().mapToInt(Car::getPrice).summaryStatistics().toString();
+
+    }
+
+    public Map<String, CarType> mapToMap(List<Car> cars) {
+        return cars.stream().sorted(Comparator.comparing(Car::getManufacturer)).distinct().collect(Collectors.toMap(Car::getId, Car::getCarType, (a, b) -> b, LinkedHashMap::new));
+    }
+
+    public int countSum(List<Car> cars) {
+        return cars.stream().map(Car::getCount).reduce(0, Integer::sum);
+    }
+
+    public void findManufacturerByPrice(List<Car> cars, int price) {
+        cars.stream().filter(car -> car.getPrice() > price).map(Car::getManufacturer).forEach(System.out::println);
+    }
+
+    public Map<String, Integer> mappingListManufacturerAndCount(List<Car> cars) {
+        Map<String, Integer> map = new HashMap<>();
+        for (Car car : cars) {
+            map.put(car.getManufacturer(), car.getCount());
+        }
+        return map;
+    }
+
+    public Map<Engine, List<Car>> mappingListEngineAndCar(List<Car> cars) {
+        Map<Engine, List<Car>> map = new HashMap<>();
+
+        for (Car car : cars) {
+            map.put(car.getEngine(), new ArrayList<>());
+        }
+        for (Car car : cars) {
+            map.get(car.getEngine()).add(car);
+        }
+        return map;
+    }
+    public int compareCar(final Car first, final Car second) {
+        return first.getId().compareTo(second.getId());
     }
 
     public static CarService getInstance() {
-        instance = Optional
-                .ofNullable(instance)
-                .orElseGet(() -> new CarService(CarArrayRepository.getInstance()));
+        if (instance == null) {
+            instance = new CarService(CarRepository.getInstance());
+        }
         return instance;
     }
 
-    public static CarService getInstance(final CarArrayRepository repository) {
-        instance = Optional
-                .ofNullable(instance)
-                .orElseGet(() -> new CarService(Optional
-                        .ofNullable(repository)
-                        .orElseGet(() -> CarArrayRepository.getInstance())));
+    public static CarService getInstance(final CarRepository repository) {
+        if (instance == null) {
+            instance = new CarService(repository);
+        }
         return instance;
     }
-
-    private static RuntimeException get() {
-        return new UserInput.UserInputException();
+    public CarService(final CarRepository carArrayRepository) {
+        this.carArrayRepository = carArrayRepository;
     }
-
-    public void printManufacturerAndCount(Car car) {
-        Optional.ofNullable(car)
-                .ifPresent(c -> System.out.printf("Manufacturer: %s, count = %d%n", c.getManufacturer(), c.getCount()));
+    public void printInfo(final Car car) {
+        final Optional<Car> optionalCar = Optional.ofNullable(car);
+        optionalCar.ifPresentOrElse(car1 -> {
+            print(car1);
+        }, () -> {
+            final Car newCar = createCar(CAR);
+            printInfo(newCar);
+        });
     }
-
-    public void printColor(Car car) {
-        Optional.ofNullable(car)
-                .map(Car::getColor)
-                .ifPresentOrElse(System.out::println, this::getRandomColor);
-    }
-
-    public void checkCount(Car car) {
-        Car forCheck;
-        forCheck = Optional.ofNullable(car)
-                .filter(car1 -> car1.getCount() > 10)
-                .orElseThrow(CarService::get);
-        printManufacturerAndCount(forCheck);
-    }
-
-    public void checkCount(Car[] cars) {
-        Arrays.stream(cars).forEach(this::checkCount);
-    }
-
     public void printEngineInfo(Car car) {
-        Optional.ofNullable(car)
-                .or(() -> {
-                    System.out.println("No car, new random car will be created");
-                    return Optional.of(create());
-                })
-                .map(c -> c.getEngine().getPower())
-                .ifPresent(power -> System.out.println("Car's engine power = " + power));
+        car = Optional.ofNullable(car).orElseGet(() -> createCar(CAR));
+        Optional.ofNullable(car).map(Car::getEngine).ifPresent(System.out::println);
+    }
+    public void checkCount(final Car car) {
+        final Optional<Car> optionalCar = Optional.ofNullable(car);
+        if (car != null) {
+            optionalCar.ifPresent(newCar -> {
+                try {
+                    optionalCar.filter(someCar -> {
+                        final boolean b = newCar.getCount() > 10;
+                        if (b) {
+                            System.out.println("Manufacturer: " + newCar.getManufacturer());
+                            System.out.println("Count: " + newCar.getCount());
+                        }
+                        return b;
+                    }).orElseThrow(() -> new UserInputException("Wrong count of cars: " + newCar.getCount()));
+                } catch (UserInputException e) {
+                    System.out.println("Need more cars!");
+                }
+            });
+        }
+    }
+    public void printColor(final Car car) {
+        final Car expectedCarOrNew = Optional.ofNullable(car).orElse(createCar(CAR));
+        System.out.println("Color  of car id: " + expectedCarOrNew.getId() + " " + expectedCarOrNew.getColor());
+    }
+    public void printManufacturerAndCount(final Car car) {
+        final Optional<Car> optionalCar = Optional.ofNullable(car);
+        optionalCar.ifPresent(someCar -> {
+            System.out.println("Manufacturer: " + someCar.getManufacturer());
+            System.out.println("Count: " + someCar.getCount());
+        });
     }
 
-    public void printInfo(Car car) {
-        Optional.ofNullable(car)
-                .map(Car::getId)
-                .ifPresentOrElse(this::print, () -> print(create().getId()));
+    public void createCar(CarType carType, int count) {
+        for (int i = 0; i < count; i++) {
+            createCar(carType);
+        }
     }
 
-
-    public Car create() {
-        String manufacturer = manufacturers[random.nextInt(manufacturers.length)];
-        Engine engine = new Engine(typesOfEngines[random.nextInt(typesOfEngines.length)]);
-        Car car = new Car(manufacturer, engine, getRandomColor(), getRandomType()) {
-            @Override
-            public int restoreCount() {
-                return 0;
-            }
-        };
+    public Car createCar(CarType carType) {
+        final Car car = createCarType(carType);
+        if (car == null) {
+            return null;
+        }
+        car.setManufacturer(createString());
+        car.setEngine(new Engine(random.nextInt(0, 1000), createString()));
+        car.setColor(getRandomColor());
+        car.setPrice(random.nextInt(0, 10000));
+        car.setCount(1);
+        car.setCarType(carType);
         carArrayRepository.save(car);
         return car;
     }
 
-    public int create(final RandomGenerator randomGenerator) {
-        if (randomGenerator == null) {
-            return -1;
+    public Car createCustomCar(CarType carType, String manufacturer, Engine engine, Color color, String id) {
+        final Car car = createCarType(carType);
+        if (car == null) {
+            return null;
         }
-        int count = randomGenerator.generate();
-        if (count <= 0 || count > 10) {
-            return -1;
-        }
-        return count;
+        car.setManufacturer(manufacturer);
+        car.setEngine(engine);
+        car.setColor(color);
+        car.setId(id);
+        car.setCount(1);
+        car.setCarType(carType);
+        car.setPrice(5000);
+        carArrayRepository.save(car);
+        return car;
     }
 
-    public Car createPassengerCar() {
-        Car passengerCar = new PassengerCar();
-        carArrayRepository.save(passengerCar);
-        return passengerCar;
-    }
-
-    public Car createTruck() {
-        Car truck = new Truck();
-        carArrayRepository.save(truck);
-        return truck;
-    }
-
-    public Car createCar(Car.Types type) {
-        if (type.equals(Car.Types.CAR)) {
-            createPassengerCar();
-            return createPassengerCar();
-        } else if (type.equals(Car.Types.TRUCK)) {
-            createTruck();
-            return createTruck();
+    private Car createCarType(CarType carType) {
+        if (carType.equals(CAR)) {
+            PassengerCar passengerCar = new PassengerCar();
+            passengerCar.setPassengerCount(randomGenerator.generate());
+            return passengerCar;
+        } else if (carType.equals(CarType.TRUCK)) {
+            Truck truck = new Truck();
+            truck.setLoadCapacity(randomGenerator.generate());
+            return truck;
         }
         return null;
     }
 
-    public int createCars() {
-        int count = RandomGenerator.generate();
-        for (int i = 0; i < count; i++) {
-            String manufacturer = RandomGenerator.generateRandomManufacture();
-            Engine engine = new Engine(RandomGenerator.generateRandomTypeOfEngine());
-            Car car = new Car(manufacturer, engine, getRandomColor(), getRandomType()) {
-
-                @Override
-                public int restoreCount() {
-                    return 0;
-                }
-            };
-            System.out.println("It's " + (i + 1) + " car: " + car);
-        }
-        int number = count == 0 ? -1 : count;
-        return number;
-    }
-
     public boolean carEquals(Car firstCar, Car secondCar) {
-        if (firstCar.getType().equals(secondCar.getType()) && firstCar.hashCode() == secondCar.hashCode()) {
-            return firstCar.equals(secondCar);
-        } else {
-            return false;
+        if (firstCar.getCarType() == secondCar.getCarType()) {
+            if (firstCar.hashCode() == secondCar.hashCode()) {
+                return firstCar.equals(secondCar);
+            }
         }
+        return false;
     }
 
+    public int createCar(CarType carType, RandomGenerator randomGenerator) {
+        final int count = randomGenerator.generate();
+        if (count != 0) {
+            for (int i = 0; i < count; i++) {
+                Car car = createCar(carType);
+                print(car);
+            }
+            return count;
+        }
+        return -1;
+    }
     public void insert(int index, final Car car) {
-
         carArrayRepository.insert(index, car);
     }
-
-    private Car.Colors getRandomColor() {
-        final Car.Colors[] values = Car.Colors.values();
+    private Color getRandomColor() {
+        final Color[] values = Color.values();
         final int randomIndex = random.nextInt(values.length);
         return values[randomIndex];
     }
-
-    private Car.Types getRandomType() {
-        final Car.Types[] values = Car.Types.values();
-        final int randomIndex = random.nextInt(values.length);
-        return values[randomIndex];
-    }
-
-    private String getRandomString() {
+    private String createString() {
         StringBuilder sb = new StringBuilder();
         int stringLength = random.nextInt(1, 10);
         String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
         for (int i = 0; i < stringLength; i++) {
             char randomChar = alphabet.charAt(random.nextInt(alphabet.length()));
             sb.append(randomChar);
         }
-
         return sb.toString();
     }
 
     public void print(Car car) {
-
-        System.out.println("{manufacturer: " + car.getManufacturer() +
-                ", engine: " + car.getEngine() +
-                ", color: " + car.getColor() +
-                ", count: " + car.getCount() +
-                ", price: " + car.getPrice() +
-                ", id: " + car.getId() + "}");
+        System.out.println(car.getCarType() + "{manufacturer: " + car.getManufacturer() + ", engine: " + car.getEngine() + ", color: " + car.getColor() + ", count: " + car.getCount() + ", price: " + car.getPrice() + ", id: " + car.getId() + "}");
     }
 
     public static void check(Car car) {
@@ -214,59 +309,41 @@ public class CarService {
             System.out.println("AMOUNT IS LESS THAN 1");
         }
     }
-
     public void printAll() {
         final Car[] all = carArrayRepository.getAll();
-        System.out.println(carArrayRepository.toString());
+        for (Car car : all) {
+            print(car);
+        }
     }
-
-
     public Car[] getAll() {
         return carArrayRepository.getAll();
     }
-
     public Car find(final String id) {
-        if (id == null || id.isEmpty()) {
-            return null;
-        }
-        return carArrayRepository.getById(id);
+        return notNullNotEmpty(id) ? carArrayRepository.getById(id) : null;
     }
-
     public void delete(final String id) {
-        if (id == null || id.isEmpty()) {
-            return;
+        if (notNullNotEmpty(id)) {
+            carArrayRepository.delete(id);
         }
-        carArrayRepository.delete(id);
     }
-
     public void changeRandomColor(final String id) {
-        if (id == null || id.isEmpty()) {
-            return;
+        if (notNullNotEmpty(id)) {
+            final Car car = find(id);
+            if (car == null) {
+                return;
+            }
+            findAndChangeRandomColor(car);
         }
-        final Car car = find(id);
-        if (car == null) {
-            return;
-        }
-        findAndChangeRandomColor(car);
     }
-
+    private boolean notNullNotEmpty(String id) {
+        return !(id == null || id.isEmpty());
+    }
     private void findAndChangeRandomColor(final Car car) {
-        final Car.Colors color = car.getColor();
-        Car.Colors randomColor;
+        final Color color = car.getColor();
+        Color randomColor;
         do {
             randomColor = getRandomColor();
         } while (randomColor == color);
+        carArrayRepository.updateColor(car.getId(), randomColor);
     }
-
-    public int compareCar(final Car firstCar, final Car secondCar) {
-        return firstCar.getId().compareTo(secondCar.getId());
-    }
-
-    public void createCar(int i, Car.Types car) {
-    }
-
 }
-
-
-
-
