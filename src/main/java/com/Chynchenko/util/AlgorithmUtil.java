@@ -1,76 +1,38 @@
 package com.Chynchenko.util;
 
-import  com.Chynchenko.model.Car;
-import com.Chynchenko.service.CarService;
-import com.Chynchenko.repository.CarArrayRepository;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import com.Chynchenko.model.Car;
 
 public class AlgorithmUtil {
 
-    private static final CarService CAR_SERVICE  = CarService.getInstance();
-    private static final CarArrayRepository CAR_ARRAY_REPOSITORY = CarArrayRepository.getInstance();
+    public  Car [] bubbleSort (Car [] cars) {
+        boolean isSorted = false;
+        while (!isSorted) {
+            isSorted = true;
+            for (int i = 0; i < cars.length - 1; i++) {
 
-
-    public static Car[] bubbleSort1(Car[] cars) {
-        for (Car car : cars) {
-            CAR_ARRAY_REPOSITORY.save(car);
-        }
-        String[] ids = Arrays.stream(cars)
-                .map(x -> x.getId())
-                .toArray(String[]::new);
-        int compare;
-        for (int i = 0; i < ids.length - 1; i++) {
-            for (int j = 0; j < ids.length - i - 1; j++) {
-                compare = ids[j].compareTo(ids[j + 1]);
-                if (compare > 0) {
-                    String forSwap = ids[j + 1];
-                    ids[j + 1] = ids[j];
-                    ids[j] = forSwap;
+                if (cars[i].getId().compareTo(cars[i+1].getId()) > 0){   // i < i+1  ?  positive:negative
+                    isSorted = false;
+                    Car tempCar = cars[i];
+                    cars[i] = cars[i + 1];
+                    cars[i + 1] = tempCar;
                 }
             }
         }
-        return Arrays.stream(ids)
-                .map(x -> CAR_SERVICE.find(x))
-                .toArray(Car[]::new);
+        return cars;
     }
 
-
-    public static Car[] bubbleSort2(Car[] cars) {
-        Map<String, Car> map = new HashMap<>();
-        Car[] sortedCars = new Car[cars.length];
-        for (Car car : cars) {
-            map.put(String.valueOf(car.getId()), car);
-        }
-        String[] ids = map.keySet().toArray(new String[0]);
-        int compare;
-        for (int i = 0; i < ids.length - 1; i++) {
-            for (int j = 0; j < ids.length - i - 1; j++) {
-                compare = ids[j].compareTo(ids[j + 1]);
-                if (compare > 0) {
-                    String forSwap = ids[j + 1];
-                    ids[j + 1] = ids[j];
-                    ids[j] = forSwap;
-                }
+    public  int binarySearch(Car[] array, Car car, int first, int last){
+        if (first <= last) {
+            int mid = first + (last - first)/2;
+            if (array[mid].equals(car)){
+                return mid;
+            }
+            if (array[mid].getId().compareTo(car.getId()) > 0){
+                return binarySearch(array, car, first, mid-1);
+            }else{
+                return binarySearch(array, car, mid+1, last);
             }
         }
-        for (int i = 0; i < sortedCars.length; i++) {
-            sortedCars[i] = map.get(ids[i]);
-        }
-        return sortedCars;
-    }
-
-    public static int binarySearch(Car[] cars, Car car, int firstElement, int lastElement) {
-        int mid = firstElement + (lastElement - firstElement)/2;
-        int compare = cars[mid].getId().compareTo(car.getId());
-        if (compare == 0) {
-            return mid;
-        } else if (compare < 0) {
-            return binarySearch(cars, car, firstElement, mid - 1);
-        } else {
-            return binarySearch(cars, car, mid + 1, lastElement);
-        }
+        return -1;
     }
 }

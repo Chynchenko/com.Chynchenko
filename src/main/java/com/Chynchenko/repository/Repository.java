@@ -1,10 +1,15 @@
 package com.Chynchenko.repository;
 
-    public interface Repository<T> {
-        public abstract void save(final T t);
-        public abstract void insert(int index, final T t);
-        public abstract T getById(final String id);
-        public abstract T[] getAll();
-        public abstract void delete(final String id);
-    }
+import com.Chynchenko.model.Car;
+import java.util.Optional;
 
+public interface Repository <T> {
+    void save(final T car);
+
+    T[] getAll();
+
+    Optional<Car> getById(final String id);
+
+    void delete(final String id);
+
+}

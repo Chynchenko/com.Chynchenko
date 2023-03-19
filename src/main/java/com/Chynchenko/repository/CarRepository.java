@@ -1,24 +1,28 @@
 package com.Chynchenko.repository;
-import com.Chynchenko.model.Car;
 
-import java.util.Objects;
+import com.Chynchenko.model.Car;
+import com.Chynchenko.model.CarType;
+import com.Chynchenko.model.Color;
+
 import java.util.Optional;
 
-public class CarArrayRepository implements Repository<Car> {
-    public static Car[] cars = new Car[10];
-    private static CarArrayRepository instance;
-    private String id;
-    private Car.Colors color;
+public class CarRepository implements Repository<Car>{
 
-    public CarArrayRepository() {
+    private static Car[] cars = new Car[10];
+    public static CarRepository instance;
+
+
+    public CarRepository() {
     }
-
-    public static CarArrayRepository getInstance() {
-        instance = Optional.ofNullable(instance).orElseGet(() -> new CarArrayRepository());
+    public static CarRepository getInstance() {
+        if (instance == null) {
+            instance = new CarRepository();
+        }
         return instance;
     }
 
-    public void save( Car car) {
+    @Override
+    public void save(final Car car) {
         final int index = putCar(car);
         if (index == cars.length) {
             final int oldLength = cars.length;
@@ -27,6 +31,7 @@ public class CarArrayRepository implements Repository<Car> {
         }
     }
 
+    @Override
     public Car[] getAll() {
         final int newLength = foundLength();
         final Car[] newCars = new Car[newLength];
@@ -34,19 +39,21 @@ public class CarArrayRepository implements Repository<Car> {
         return newCars;
     }
 
-    public Car getById(final String id) {
+    @Override
+    public Optional<Car> getById(final String id) {
         for (Car car : cars) {
-            if (Objects.equals(car.getId(), id)) {
-                return car;
+            if (car.getId().equals(id)) {
+                return Optional.of(car);
             }
         }
-        return null;
+        return Optional.empty();
     }
 
+    @Override
     public void delete(final String id) {
         int index = 0;
         for (; index < cars.length; index++) {
-            if (Objects.equals(cars[index].getId(), id)) {
+            if (cars[index].getId().equals(id)) {
                 break;
             }
         }
@@ -63,21 +70,15 @@ public class CarArrayRepository implements Repository<Car> {
         final int newLength = foundLength();
         if (index > newLength) {
             putCar(car);
-        }
-        else {
-            System.arraycopy(cars, index, cars, index+1,
+        } else {
+            System.arraycopy(cars, index, cars, index + 1,
                     cars.length - (index + 1));
-            cars[index]=car;
+            cars[index] = car;
         }
-
     }
-    public void updateColor(final String id, Car.Colors color) {
-        this.id = id;
-        this.color = color;
-        final Car car = getById(id);
-        if (car != null) {
-            car.setColor(Car.Colors);
-        }
+
+    public void updateColor(final String id, final Color color) {
+        getById(id).ifPresent(car -> car.setColor(color));
     }
 
     private int foundLength() {
@@ -102,11 +103,16 @@ public class CarArrayRepository implements Repository<Car> {
         }
         return index;
     }
-
     private void increaseArray() {
         Car[] newCars = new Car[cars.length * 2];
         System.arraycopy(cars, 0, newCars, 0, cars.length);
         cars = newCars;
     }
+    public void printAll() {
+    }
+    public void createCar(CarType car, int i) {
+    }
+    public int compareCar(Car currentCar, Car nextCar) {
+        return 0;
+    }
 }
-
