@@ -3,7 +3,6 @@ package com.Chynchenko.container;
 import com.Chynchenko.model.Car;
 import lombok.Getter;
 import lombok.Setter;
-
 @Getter
 @Setter
 class Node<T> extends Car {

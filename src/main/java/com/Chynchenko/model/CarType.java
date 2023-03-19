@@ -1,9 +1,8 @@
 package com.Chynchenko.model;
-
 import lombok.Getter;
 
 @Getter
-public enum Type {
+public enum CarType {
     CAR,
     TRUCK
 }

@@ -1,5 +1,4 @@
 package com.Chynchenko.container;
-
 public interface Linked <E> {
     void addLastElement (E element);
     void addFirstElement (E element);

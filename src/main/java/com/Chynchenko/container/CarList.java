@@ -41,8 +41,6 @@ public class CarList {
         while (iterator.hasNext()) {
             System.out.println("Desc ->" + iterator.next());
         }
-
-
     }
 }
 
@@ -50,7 +48,6 @@ class LinkedlistRealization<E extends Car> implements Linked<E>, Iterable<E>, De
     private Node<E> firstNode;
     private Node<E> lastNode;
     private int size = 0;
-
 
     public LinkedlistRealization() {
         lastNode = new Node<>(null, firstNode, null);
@@ -176,7 +173,6 @@ class LinkedlistRealization<E extends Car> implements Linked<E>, Iterable<E>, De
             }
         };
     }
-
 
     @Override
     public Iterator<E> descendingIterator() {

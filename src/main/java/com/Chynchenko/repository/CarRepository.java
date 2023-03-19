@@ -1,8 +1,8 @@
 package com.Chynchenko.repository;
 
 import com.Chynchenko.model.Car;
+import com.Chynchenko.model.CarType;
 import com.Chynchenko.model.Color;
-import com.Chynchenko.model.Type;
 
 public class CarRepository implements Repository<Car>{
 
@@ -10,11 +10,11 @@ public class CarRepository implements Repository<Car>{
     public static CarRepository instance;
 
 
-    public CarRepository(CarRepository instance) {
+    public CarRepository() {
     }
     public static CarRepository getInstance() {
         if (instance == null) {
-            instance = new CarRepository(CarRepository.getInstance());
+            instance = new CarRepository();
         }
         return instance;
     }
@@ -100,19 +100,15 @@ public class CarRepository implements Repository<Car>{
         }
         return index;
     }
-
     private void increaseArray() {
         Car[] newCars = new Car[cars.length * 2];
         System.arraycopy(cars, 0, newCars, 0, cars.length);
         cars = newCars;
     }
-
     public void printAll() {
     }
-
-    public void createCar(Type car, int i) {
+    public void createCar(CarType car, int i) {
     }
-
     public int compareCar(Car currentCar, Car nextCar) {
         return 0;
     }

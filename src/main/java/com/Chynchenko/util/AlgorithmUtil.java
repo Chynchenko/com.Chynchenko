@@ -35,5 +35,4 @@ public class AlgorithmUtil {
         }
         return -1;
     }
-
 }

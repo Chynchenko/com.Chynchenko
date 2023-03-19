@@ -1,19 +1,15 @@
 package com.Chynchenko.action;
 
-import com.Chynchenko.model.Type;
+import com.Chynchenko.model.CarType;
 import com.Chynchenko.util.UserInput;
 
 import java.util.Optional;
-
 public class CreateAction implements Action {
-
     private static final int DEFAULT_COUNT = 10;
-
     @Override
     public void execute() {
         String[] menu = {"Input your value", "Default value"};
         final int userChoice = UserInput.menu(menu);
-
         int count;
         if (userChoice == 0) {
             count = Optional.of(UserInput.getInt("Write amount of cars"))
@@ -23,7 +19,7 @@ public class CreateAction implements Action {
             count = DEFAULT_COUNT;
         }
 
-        CAR_SERVICE.createCar(Type.CAR,count);
+        CAR_SERVICE.createCar(CarType.CAR,count);
         System.out.printf("Created %d cars%n", count);
     }
 }

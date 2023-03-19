@@ -28,7 +28,6 @@ public class UserInput {
         return userChoice;
     }
 
-
     public static int getInt(final String option) {
         String line;
         do {
